@@ -9,22 +9,23 @@ A Chromium extension that automatically updates Meetup event attendee status wit
 
 **🚀 Save hours of manual work** by automatically updating attendee statuses on Meetup.com events. Perfect for event organizers who need to efficiently manage large attendee lists.
 
+[![Download Extension](https://img.shields.io/badge/Download-Extension-success?style=for-the-badge&logo=download)](https://github.com/yashrajnayak/meetup-status-updater/archive/refs/heads/main.zip)
+
 <img width="355" alt="image" src="https://github.com/user-attachments/assets/733ee5d6-3c59-496b-9f15-7afb62e9e3e2" />
 
 ## ✨ Key Features
 
 - 🎯 **Dual Mode Support**: Works with both past and future meetups
   - Past meetups: Moves attendees to "Went" status
-  - Future meetups: Moves attendees to "Going" status (precisely matches to avoid "Not Going")
-- 🔍 **Intelligent Name Filtering**: 
-  - Pre-loads all attendees when name filter is provided for maximum efficiency
-  - Only processes attendees that match the specified names
-- ⚡ **Smart Batch Processing**: Efficiently processes attendees in batches, tracking processed attendees to avoid duplicates
+  - Future meetups: Moves attendees to "Going" status
+- ⚡ **Smart Batch Processing**: 
+  - Pre-loads all attendees when name filter is provided for maximum efficiency. 
+  - Only processes attendees that match the specified names.
+  - Efficiently processes attendees in batches, tracking processed attendees to avoid duplicates
 - 🔄 **Auto Tab Recovery**: Automatically detects and recovers from Meetup's tab switching behavior
 - 📊 **Progress Tracking**: Real-time progress updates with visual indicators
 - ⏱️ **Configurable Delays**: Adjust timing between actions and scrolling
 - 🛡️ **Auto-Recovery**: Handles page navigation and dropdown states automatically
-- 🎯 **Robust Selectors**: Uses current Meetup.com HTML structure for reliable performance
 
 ## 📋 Requirements
 
