@@ -93,13 +93,7 @@ meetup-status-updater/
 ├── icon48.png
 ├── icon128.png
 ├── README.md              # Main documentation
-├── CHANGELOG.md           # Version history
-├── CONTRIBUTING.md        # This file
 ├── LICENSE                # License information
-└── docs/                  # Additional documentation
-    ├── installation-guide.md
-    ├── usage-guide.md
-    └── security-privacy.md
 ```
 
 ## ⚠️ Important Notes
