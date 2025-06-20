@@ -63,6 +63,8 @@ A Chromium extension that automatically updates Meetup event attendee status wit
 7. **Monitor progress** in the popup - you'll see real-time updates
 8. **Wait for completion** - the extension will automatically stop when finished
 
+> **⚠️ Disclaimer**: This extension is not affiliated with, endorsed by, or officially connected to Meetup.com or Meetup Inc. It is an independent, open-source tool created to help event organizers manage their events more efficiently.
+
 ## 🛠️ Technical Details
 
 The extension uses:
@@ -77,6 +79,27 @@ The extension uses:
 - `scripting`: Interact with page elements (click buttons, read content)
 - `storage`: Save your preference settings locally
 - `host_permissions`: Limited to Meetup.com domain only
+
+### 📁 Project Structure
+
+```
+meetup-status-updater/
+├── manifest.json          # Extension configuration
+├── popup.html             # Extension popup interface
+├── popup.js               # Popup logic and UI handling
+├── content.js             # Main extension logic (runs on Meetup pages)
+├── icon16.png             # Extension icons
+├── icon48.png
+├── icon128.png
+├── README.md              # Main documentation
+├── CHANGELOG.md           # Version history
+├── CONTRIBUTING.md        # This file
+├── LICENSE                # License information
+└── docs/                  # Additional documentation
+    ├── installation-guide.md
+    ├── usage-guide.md
+    └── security-privacy.md
+```
 
 ## ⚠️ Important Notes
 
@@ -130,21 +153,14 @@ The extension uses:
 
 ## 🤝 Support
 
-If you encounter issues:
+If you encounter issues, first check:
+- You're on the correct page type (Meetup attendees page)
+- You have organizer permissions for the event
+- The Meetup page has fully loaded before starting
+- Browser console for error messages (F12 → Console tab)
 
-1. **First check**:
-   - You're on the correct page type (Meetup attendees page)
-   - You have organizer permissions for the event
-   - The Meetup page has fully loaded before starting
-   - Browser console for error messages (F12 → Console tab)
-
-2. **Get help**:
-   - [Create an issue](../../issues/new) with details about your problem
-   - Include your Chrome version, operating system, and error messages
-   - Provide screenshots if helpful
-
-3. **Contributing**:
-   - [Contributing Guidelines](CONTRIBUTING.md) - Help improve the extension
-   - [Issue Tracker](../../issues) - Report bugs or request features
+**Contributing**:
+- [Issue Tracker](../../issues) - Report bugs or request features
+- Fork the repository and submit pull requests for improvements
 
 **Remember**: This extension automates the same manual process you would do - it just saves you time by clicking the buttons automatically!
