@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Meetup Attendee Status Updater",
+  "version": "1.0",
+  "description": "Automatically update Meetup event attendees status to 'Went' or 'Going' with name filtering",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.meetup.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.meetup.com/*/events/*/attendees/*",
+        "https://www.meetup.com/*/events/*/attendees/"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Meetup Status Updater"
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}
