@@ -9,8 +9,6 @@ A Chromium extension that automatically updates Meetup event attendee status wit
 
 **🚀 Save hours of manual work** by automatically updating attendee statuses on Meetup.com events. Perfect for event organizers who need to efficiently manage large attendee lists.
 
-[![Download Extension](https://img.shields.io/badge/Download-Extension-success?style=for-the-badge&logo=download)](https://github.com/yashrajnayak/meetup-status-updater/archive/refs/heads/main.zip)
-
 <img width="355" alt="image" src="https://github.com/user-attachments/assets/733ee5d6-3c59-496b-9f15-7afb62e9e3e2" />
 
 ## ✨ Key Features
@@ -34,6 +32,8 @@ A Chromium extension that automatically updates Meetup event attendee status wit
 - **Event attendees page** (URL must contain `/attendees/`)
 
 ## 💾 Installation
+
+[![Download Extension](https://img.shields.io/badge/Download-Extension-success?style=for-the-badge&logo=download)](https://github.com/yashrajnayak/meetup-status-updater/archive/refs/heads/main.zip)
 
 1. Download the repository as a ZIP file
 2. Extract the ZIP file to a folder on your computer
