@@ -7,17 +7,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const progressText = document.getElementById('progressText');
     const delayInput = document.getElementById('delay');
     const scrollDelayInput = document.getElementById('scrollDelay');
-    const meetupTypeSelect = document.getElementById('meetupType');
+    const actionTypeSelect = document.getElementById('actionType');
     const nameFilterTextarea = document.getElementById('nameFilter');
 
     let isRunning = false;
 
     // Load saved settings
-    chrome.storage.sync.get(['delay', 'scrollDelay', 'meetupType', 'nameFilter'], function(result) {
+    chrome.storage.sync.get(['delay', 'scrollDelay', 'actionType', 'nameFilter'], function(result) {
         if (result.delay) delayInput.value = result.delay;
         if (result.scrollDelay) scrollDelayInput.value = result.scrollDelay;
-        if (result.meetupType) meetupTypeSelect.value = result.meetupType;
+        if (result.actionType) actionTypeSelect.value = result.actionType;
         if (result.nameFilter) nameFilterTextarea.value = result.nameFilter;
+        
+        // Update status message based on initial action type
+        updateStatusMessage();
     });
 
     // Save settings when changed
@@ -29,8 +32,9 @@ document.addEventListener('DOMContentLoaded', function() {
         chrome.storage.sync.set({scrollDelay: scrollDelayInput.value});
     });
 
-    meetupTypeSelect.addEventListener('change', function() {
-        chrome.storage.sync.set({meetupType: meetupTypeSelect.value});
+    actionTypeSelect.addEventListener('change', function() {
+        chrome.storage.sync.set({actionType: actionTypeSelect.value});
+        updateStatusMessage();
     });
 
     nameFilterTextarea.addEventListener('change', function() {
@@ -67,12 +71,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Content script may already be loaded:', injectionError);
             }
 
+            // Determine source tab based on action type
+            const actionType = actionTypeSelect.value;
+            const sourceTab = getSourceTabFromActionType(actionType);
+
             // Send message to content script to start processing
             await chrome.tabs.sendMessage(tab.id, {
                 action: 'start',
                 delay: parseInt(delayInput.value),
                 scrollDelay: parseInt(scrollDelayInput.value),
-                meetupType: meetupTypeSelect.value,
+                meetupType: actionType,
+                sourceTab: sourceTab,
                 nameFilter: nameFilterTextarea.value.trim()
             });
 
@@ -141,5 +150,31 @@ document.addEventListener('DOMContentLoaded', function() {
         progressContainer.style.display = 'none';
         progressBar.style.width = '0%';
         progressText.textContent = '0 / 0 updated';
+    }
+
+    function getSourceTabFromActionType(actionType) {
+        // Determine which source tab to use based on the action type
+        if (actionType === 'waitlist') {
+            return 'going'; // Moving to waitlist means we're processing from going tab
+        } else {
+            return 'waitlist'; // Moving to going/went means we're processing from waitlist tab
+        }
+    }
+
+    function updateStatusMessage() {
+        const actionType = actionTypeSelect.value;
+        const sourceTab = getSourceTabFromActionType(actionType);
+        
+        let statusMessage = '';
+        if (actionType === 'waitlist') {
+            statusMessage = 'Ready to move attendees from Going tab to Waitlist';
+        } else if (actionType === 'past') {
+            statusMessage = 'Ready to move attendees from Waitlist tab to "Went"';
+        } else if (actionType === 'future') {
+            statusMessage = 'Ready to move attendees from Waitlist tab to "Going"';
+        }
+        
+        statusDiv.textContent = statusMessage;
+        statusDiv.className = 'status info';
     }
 });

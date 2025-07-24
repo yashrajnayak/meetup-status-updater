@@ -23,17 +23,19 @@ class MeetupAttendeeProcessor {
         this.processedCount = 0;
         this.totalCount = 0;
         this.currentDropdown = null;
-        this.meetupType = 'past'; // 'past' or 'future'
+        this.meetupType = 'past'; // 'past', 'future', or 'waitlist'
+        this.sourceTab = 'waitlist'; // 'waitlist' or 'going'
         this.nameFilter = []; // Array of names to filter by
         this.skippedCount = 0; // Count of attendees skipped due to name filter
         this.processedAttendeeIds = new Set(); // Track processed attendee elements to avoid duplicates
         this.hasTabSwitched = false; // Track if tab has switched
     }
 
-    async processAllAttendees(delay = 2000, scrollDelay = 3000, meetupType = 'past', nameFilter = '') {
+    async processAllAttendees(delay = 2000, scrollDelay = 3000, meetupType = 'past', sourceTab = 'waitlist', nameFilter = '') {
         this.delay = delay;
         this.scrollDelay = scrollDelay;
         this.meetupType = meetupType;
+        this.sourceTab = sourceTab;
         this.nameFilter = nameFilter ? nameFilter.split('\n').map(name => name.trim()).filter(name => name.length > 0) : [];
         this.isRunning = true;
         this.processedCount = 0;
@@ -47,8 +49,8 @@ class MeetupAttendeeProcessor {
             // Wait for page to load completely
             await this.waitForPageLoad();
             
-            // Verify we're on the correct tab (should have waitlist attendees)
-            await this.ensureWaitlistTab();
+            // Verify we're on the correct tab based on source tab setting
+            await this.ensureCorrectSourceTab();
             
             // Get estimated total for progress tracking
             this.totalCount = this.getEstimatedTotal();
@@ -63,7 +65,7 @@ class MeetupAttendeeProcessor {
             }
 
             if (this.isRunning) {
-                const targetStatus = this.meetupType === 'past' ? 'Went' : 'Going';
+                const targetStatus = this.getTargetStatus();
                 let completionMessage = `Successfully updated ${this.processedCount} attendees to "${targetStatus}" status`;
                 if (this.skippedCount > 0) {
                     completionMessage += ` (${this.skippedCount} skipped)`;
@@ -84,12 +86,30 @@ class MeetupAttendeeProcessor {
         await this.sleep(1000); // Additional wait for dynamic content
     }
 
+    getTargetStatus() {
+        if (this.meetupType === 'waitlist') {
+            return 'Waitlist';
+        } else if (this.meetupType === 'past') {
+            return 'Went';
+        } else { // future
+            return 'Going';
+        }
+    }
+
     getEstimatedTotal() {
         // Try to get total count from the page if available
         const tabs = document.querySelectorAll('[data-testid="attendees-tab-container"] button');
         for (const tab of tabs) {
-            if (tab.textContent.includes('Waitlist') || tab.textContent.includes('waitlist')) {
-                const match = tab.textContent.match(/(\d+)/);
+            const tabText = tab.textContent;
+            
+            // Check for the appropriate source tab based on configuration
+            if (this.sourceTab === 'waitlist' && (tabText.includes('Waitlist') || tabText.includes('waitlist'))) {
+                const match = tabText.match(/(\d+)/);
+                if (match) {
+                    return parseInt(match[1]);
+                }
+            } else if (this.sourceTab === 'going' && tabText.includes('Going')) {
+                const match = tabText.match(/(\d+)/);
                 if (match) {
                     return parseInt(match[1]);
                 }
@@ -102,10 +122,8 @@ class MeetupAttendeeProcessor {
     async processCurrentViewAttendees(batchNumber) {
         this.sendMessage('status', `Processing batch ${batchNumber}...`, 'info');
         
-        // Always ensure we're on the waitlist tab before processing
-        await this.ensureWaitlistTab();
-        
-        // Get currently visible attendees (excluding already processed ones)
+                // Always ensure we're on the correct source tab before processing
+                await this.ensureCorrectSourceTab();        // Get currently visible attendees (excluding already processed ones)
         const attendeeTools = this.getCurrentVisibleAttendees();
         
         if (attendeeTools.length === 0) {
@@ -121,8 +139,8 @@ class MeetupAttendeeProcessor {
         // Process each attendee in current view
         for (let i = 0; i < attendeeTools.length && this.isRunning; i++) {
             try {
-                // Always ensure we're on waitlist tab before each attendee
-                await this.ensureWaitlistTab();
+                // Always ensure we're on the correct source tab before each attendee
+                await this.ensureCorrectSourceTab();
                 
                 const result = await this.processAttendee(attendeeTools[i], this.processedCount + this.skippedCount + 1);
                 
@@ -210,36 +228,57 @@ class MeetupAttendeeProcessor {
         return hasNewAttendees;
     }
 
-    async ensureWaitlistTab() {
+    async ensureCorrectSourceTab() {
         const tabContainer = document.querySelector('[data-testid="attendees-tab-container"]');
         if (!tabContainer) {
             throw new Error('Tab container not found');
         }
         
-        // Check if we're currently on a different tab (has bg-white and specific content)
+        // Check if we're currently on a different tab
         const activeTab = tabContainer.querySelector('button.bg-white:not(.text-gray6)');
-        if (activeTab && (activeTab.textContent.includes('Going') || activeTab.textContent.includes('Went'))) {
-            this.sendMessage('status', `Detected switch to "${activeTab.textContent.trim()}" tab. Returning to Waitlist...`, 'info');
+        
+        // Determine what tab we should be on and what tab we're currently on
+        const shouldBeOnWaitlist = this.sourceTab === 'waitlist';
+        const shouldBeOnGoing = this.sourceTab === 'going';
+        
+        let needsTabSwitch = false;
+        let targetTabName = '';
+        
+        if (shouldBeOnWaitlist && activeTab && !activeTab.textContent.includes('Waitlist')) {
+            needsTabSwitch = true;
+            targetTabName = 'Waitlist';
+        } else if (shouldBeOnGoing && activeTab && !activeTab.textContent.includes('Going')) {
+            needsTabSwitch = true;
+            targetTabName = 'Going';
+        }
+        
+        if (needsTabSwitch) {
+            this.sendMessage('status', `Detected wrong tab. Switching to ${targetTabName}...`, 'info');
             this.hasTabSwitched = true;
             
-            // Find and click the waitlist tab
-            const waitlistTab = Array.from(tabContainer.querySelectorAll('button')).find(btn => 
-                btn.textContent.includes('Waitlist') || btn.textContent.includes('waitlist')
-            );
+            // Find and click the target tab
+            const targetTab = Array.from(tabContainer.querySelectorAll('button')).find(btn => {
+                if (shouldBeOnWaitlist) {
+                    return btn.textContent.includes('Waitlist') || btn.textContent.includes('waitlist');
+                } else if (shouldBeOnGoing) {
+                    return btn.textContent.includes('Going') && !btn.textContent.includes('Not Going');
+                }
+                return false;
+            });
             
-            if (waitlistTab) {
-                waitlistTab.click();
+            if (targetTab) {
+                targetTab.click();
                 await this.sleep(3000); // Longer wait for tab to fully load
                 
-                // Verify we successfully switched back
+                // Verify we successfully switched
                 const newActiveTab = tabContainer.querySelector('button.bg-white:not(.text-gray6)');
-                if (newActiveTab && !newActiveTab.textContent.includes('Waitlist')) {
-                    throw new Error('Failed to return to Waitlist tab');
+                if (newActiveTab && !newActiveTab.textContent.includes(targetTabName)) {
+                    throw new Error(`Failed to switch to ${targetTabName} tab`);
                 }
                 
-                this.sendMessage('status', 'Successfully returned to Waitlist tab', 'info');
+                this.sendMessage('status', `Successfully switched to ${targetTabName} tab`, 'info');
             } else {
-                throw new Error('Could not find Waitlist tab to return to');
+                throw new Error(`Could not find ${targetTabName} tab`);
             }
         }
     }
@@ -347,18 +386,18 @@ class MeetupAttendeeProcessor {
             // Wait for dropdown menu to appear and find the target button
             const targetButton = await this.findTargetButton();
             if (!targetButton) {
-                const targetStatus = this.meetupType === 'past' ? 'Went' : 'Going';
+                const targetStatus = this.getTargetStatus();
                 throw new Error(`"Move to ${targetStatus}" button not found for attendee ${attendeeNumber}: "${attendeeName}"`);
             }
 
             // Verify the button is still valid before clicking
             if (!targetButton.offsetParent || targetButton.getBoundingClientRect().height === 0) {
-                const targetStatus = this.meetupType === 'past' ? 'Went' : 'Going';
+                const targetStatus = this.getTargetStatus();
                 throw new Error(`"Move to ${targetStatus}" button for attendee ${attendeeNumber}: "${attendeeName}" is not clickable`);
             }
 
             // Click the target button
-            const targetStatus = this.meetupType === 'past' ? 'Went' : 'Going';
+            const targetStatus = this.getTargetStatus();
             console.log(`Clicking "Move to ${targetStatus}" for: "${attendeeName}"`);
             targetButton.click();
             await this.sleep(2000); // Longer wait for action to complete and potential tab switch
@@ -445,9 +484,9 @@ class MeetupAttendeeProcessor {
         // Wait a bit for dropdown to fully render
         await this.sleep(1000);
         
-        const targetStatus = this.meetupType === 'past' ? 'Went' : 'Going';
+        const targetStatus = this.getTargetStatus();
         console.log(`Looking for "Move to ${targetStatus}" button...`);
-        console.log(`Meetup type: ${this.meetupType}, Target status: ${targetStatus}`);
+        console.log(`Meetup type: ${this.meetupType}, Source tab: ${this.sourceTab}, Target status: ${targetStatus}`);
         
         // First, try to find the dropdown/menu container
         const dropdownSelectors = [
@@ -498,9 +537,9 @@ class MeetupAttendeeProcessor {
                         return button;
                     }
                     
-                    // Log buttons that contain "Going" for debugging
-                    if (buttonText.toLowerCase().includes('going')) {
-                        console.log(`Button contains "going": "${buttonText}" - exact match: ${this.isExactStatusMatch(buttonText, targetStatus)}`);
+                    // Log buttons that contain the target status for debugging
+                    if (buttonText.toLowerCase().includes(targetStatus.toLowerCase())) {
+                        console.log(`Button contains "${targetStatus}": "${buttonText}" - exact match: ${this.isExactStatusMatch(buttonText, targetStatus)}`);
                     }
                 }
             }
@@ -792,6 +831,9 @@ class MeetupAttendeeProcessor {
         } else if (targetStatus === 'Went') {
             // For "Went", make sure it's exact match
             return normalizedButtonText.includes(normalizedTargetStatus);
+        } else if (targetStatus === 'Waitlist') {
+            // For "Waitlist", check for exact match
+            return normalizedButtonText.includes('waitlist');
         }
         
         // Default case: just check if target status is included
@@ -898,7 +940,7 @@ class MeetupAttendeeProcessor {
     async processBatchMode() {
         this.sendMessage('status', `Starting batch processing for all attendees...`, 'info');
         
-        const targetStatus = this.meetupType === 'past' ? 'Went' : 'Going';
+        const targetStatus = this.getTargetStatus();
         this.sendMessage('status', `Moving attendees to "${targetStatus}" status`, 'info');
         
         // Process attendees in batches (visible attendees, then scroll)
@@ -907,8 +949,8 @@ class MeetupAttendeeProcessor {
         
         while (hasMoreAttendees && this.isRunning) {
             try {
-                // Always ensure we're on the waitlist tab before processing batch
-                await this.ensureWaitlistTab();
+                // Always ensure we're on the correct source tab before processing batch
+                await this.ensureCorrectSourceTab();
                 
                 // Process current visible attendees
                 const processed = await this.processCurrentViewAttendees(batchNumber);
@@ -940,7 +982,7 @@ class MeetupAttendeeProcessor {
                 // If error mentions tab switch, try to recover
                 if (error.message.includes('no longer visible') || error.message.includes('not found')) {
                     this.hasTabSwitched = true;
-                    await this.ensureWaitlistTab();
+                    await this.ensureCorrectSourceTab();
                 }
                 
                 // Try to continue with next batch
@@ -1018,6 +1060,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage)
                     request.delay, 
                     request.scrollDelay, 
                     request.meetupType || 'past',
+                    request.sourceTab || 'waitlist',
                     request.nameFilter || ''
                 );
                 sendResponse({success: true});

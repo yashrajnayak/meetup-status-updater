@@ -5,25 +5,43 @@
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 ![Open Source](https://img.shields.io/badge/Open%20Source-❤️-red)
 
-A Chromium extension that automatically updates Meetup event attendee status with advanced filtering capabilities.
+A powerful Chromium extension that automatically updates Meetup event attendee statuses with advanced filtering capabilities and multi-tab support.
 
-**🚀 Save hours of manual work** by automatically updating attendee statuses on Meetup.com events. Perfect for event organizers who need to efficiently manage large attendee lists.
+**🚀 Save hours of manual work** by automatically moving attendees between Waitlist, Going, and Went statuses on Meetup.com events. Perfect for event organizers who need to efficiently manage large attendee lists across different status categories.
 
 <img width="355" alt="image" src="https://github.com/user-attachments/assets/733ee5d6-3c59-496b-9f15-7afb62e9e3e2" />
 
 ## ✨ Key Features
 
-- 🎯 **Dual Mode Support**: Works with both past and future meetups
-  - Past meetups: Moves attendees to "Went" status
-  - Future meetups: Moves attendees to "Going" status
-- ⚡ **Smart Batch Processing**: 
-  - Pre-loads all attendees when name filter is provided for maximum efficiency. 
-  - Only processes attendees that match the specified names.
+- 🎯 **Complete Multi-Tab Support**: Works seamlessly with both Waitlist and Going tabs
+  - **From Waitlist**: Move attendees to "Going" (future meetups) or "Went" (past meetups)
+  - **From Going**: Move attendees back to "Waitlist" for re-organization
+  - **Smart Auto-Detection**: Automatically determines source tab based on your selected action
+- ⚡ **Intelligent Batch Processing**: 
+  - Pre-loads all attendees when name filter is provided for maximum efficiency
+  - Only processes attendees that match the specified names
   - Efficiently processes attendees in batches, tracking processed attendees to avoid duplicates
-- 🔄 **Auto Tab Recovery**: Automatically detects and recovers from Meetup's tab switching behavior
-- 📊 **Progress Tracking**: Real-time progress updates with visual indicators
-- ⏱️ **Configurable Delays**: Adjust timing between actions and scrolling
-- 🛡️ **Auto-Recovery**: Handles page navigation and dropdown states automatically
+  - Handles large attendee lists with automatic scrolling and pagination
+- 🔄 **Advanced Auto-Recovery**: 
+  - Automatically detects and recovers from Meetup's tab switching behavior
+  - Handles page navigation changes during processing
+  - Resumes processing after temporary interruptions
+- 📊 **Real-Time Progress Tracking**: 
+  - Live progress updates with visual indicators
+  - Shows processed count, total count, and skipped attendees
+  - Detailed status messages for each operation
+- ⏱️ **Configurable Timing Controls**: 
+  - Adjustable delays between actions to respect server limits
+  - Customizable scroll timing for loading more attendees
+  - Prevents overwhelming Meetup's servers
+- 🛡️ **Robust Error Handling**: 
+  - Continues processing even if individual attendees fail
+  - Automatic dropdown state management
+  - Comprehensive error recovery mechanisms
+- 🔍 **Advanced Name Filtering**: 
+  - Process only specific attendees by name
+  - Supports partial name matching
+  - Bulk filtering with one name per line
 
 ## 📋 Requirements
 
@@ -49,37 +67,100 @@ A Chromium extension that automatically updates Meetup event attendee status wit
 
 ![image](https://github.com/user-attachments/assets/6f947e51-a86c-49cd-8876-65a809f8fdb6)
 
-1. **Navigate to a Meetup event's attendees page** (URL should contain `/attendees/`)
-2. **Click the extension icon** in the toolbar
-3. **Select meetup type**:
-   - **Past Meetup**: Moves attendees to "Went" status
-   - **Future Meetup**: Moves attendees to "Going" status
-4. **Configure name filter (optional)**:
-   - Leave empty to update all attendees
-   - Enter specific names (one per line) to filter attendees
-5. **Adjust delay settings if needed**:
+### Step-by-Step Guide
+
+1. **📍 Navigate to Event Page**
+   - Go to your Meetup event's attendees page (URL should contain `/attendees/`)
+   - Ensure you're logged in as an event organizer with appropriate permissions
+
+2. **🔧 Open Extension**
+   - Click the extension icon in your browser toolbar
+   - The popup interface will appear with configuration options
+
+3. **🎯 Choose Your Action**
+   - **Past Meetup (Move to "Went")**: Moves attendees from Waitlist to Went status
+   - **Future Meetup (Move to "Going")**: Moves attendees from Waitlist to Going status  
+   - **Move to "Waitlist"**: Moves attendees from Going back to Waitlist
+   
+   *The extension automatically determines which tab to process based on your selected action*
+
+4. **🔍 Configure Name Filter (Optional)**
+   - **Leave empty**: Process all attendees in the selected tab
+   - **Add specific names**: Enter one name per line to process only those attendees
+   - **Example**:
+     ```
+     John Doe
+     Jane Smith
+     Alex Johnson
+     ```
+
+5. **⚙️ Adjust Timing Settings (Optional)**
    - **Delay between actions**: Time to wait between processing each attendee (default: 2000ms)
    - **Scroll delay**: Time to wait when scrolling to load more attendees (default: 3000ms)
-6. **Click "Start Auto-Update"** to begin the process
-7. **Monitor progress** in the popup - you'll see real-time updates
-8. **Wait for completion** - the extension will automatically stop when finished
+   - *Increase delays if you experience timeouts or errors*
+
+6. **▶️ Start Processing**
+   - Click "Start Auto-Update" to begin the automated process
+   - The extension will automatically switch to the correct tab if needed
+
+7. **📊 Monitor Progress**
+   - Watch real-time updates in the popup window
+   - See processed count, total attendees, and any skipped entries
+   - Status messages will show current operation details
+
+8. **✅ Completion**
+   - The extension will automatically stop when all attendees are processed
+   - A completion message will show the final results
+   - You can stop the process early using the "Stop Process" button if needed
+
+### 💡 Pro Tips
+
+- **Test with small groups first**: Try the extension with a few attendees to get familiar
+- **Use name filtering for precision**: When you only need to move specific people
+- **Increase delays for stability**: If you encounter errors, try higher delay values
+- **Monitor the browser console**: Press F12 → Console for detailed logging information
 
 > **⚠️ Disclaimer**: This extension is not affiliated with, endorsed by, or officially connected to Meetup.com or Meetup Inc. It is an independent, open-source tool created to help event organizers manage their events more efficiently.
 
 ## 🛠️ Technical Details
 
-The extension uses:
-- **Manifest V3** for Chrome extensions (latest security standards)
-- **Content scripts** to interact with the Meetup page
-- **Local storage** for user preferences only
-- **Automatic scrolling** to handle pagination
-- **Robust error handling** and recovery mechanisms
+### Core Technologies
+- **Manifest V3**: Latest Chrome extension security standards and best practices
+- **Content Scripts**: Direct interaction with Meetup.com pages using modern JavaScript
+- **Local Storage**: Secure local storage for user preferences only
+- **Automatic Scrolling**: Intelligent pagination handling for large attendee lists
+- **Robust Error Handling**: Comprehensive recovery mechanisms and failsafes
+
+### Architecture Overview
+The extension consists of three main components:
+
+1. **Popup Interface** (`popup.html` + `popup.js`)
+   - User-friendly configuration interface
+   - Real-time progress tracking and status updates
+   - Settings persistence and validation
+
+2. **Content Script** (`content.js`)
+   - Core automation logic running on Meetup pages
+   - DOM manipulation and attendee processing
+   - Tab navigation and state management
+
+3. **Background Service** (Manifest V3)
+   - Extension lifecycle management
+   - Cross-component communication
+   - Permission and security handling
 
 ### Browser Permissions Required
-- `activeTab`: Access current Meetup.com tab only
-- `scripting`: Interact with page elements (click buttons, read content)
-- `storage`: Save your preference settings locally
-- `host_permissions`: Limited to Meetup.com domain only
+- `activeTab`: Access to the currently active Meetup.com tab only
+- `scripting`: Ability to interact with page elements (click buttons, read content)
+- `storage`: Save user preference settings locally in browser storage
+- `host_permissions`: Limited access to Meetup.com domain only for security
+
+### Performance Optimizations
+- **Batch Processing**: Processes attendees in efficient batches rather than one-by-one
+- **Smart Scrolling**: Only loads additional attendees when needed
+- **Duplicate Prevention**: Tracks processed attendees to avoid re-processing
+- **Memory Management**: Cleans up resources and prevents memory leaks
+- **Rate Limiting**: Configurable delays to respect Meetup's server limits
 
 ### 📁 Project Structure
 
@@ -96,37 +177,93 @@ meetup-status-updater/
 ├── LICENSE                # License information
 ```
 
-## ⚠️ Important Notes
+## ⚠️ Important Notes & Best Practices
 
-- This extension only works on Meetup.com attendees pages
-- You must be logged in as an event organizer with permission to change attendee status
-- The extension includes delays to avoid overwhelming the website
-- Progress is shown in real-time in the extension popup
-- If an error occurs with one attendee, the extension will continue with the next one
+### 🎯 Compatibility & Requirements
+- ✅ **Meetup Pages Only**: This extension exclusively works on Meetup.com attendees pages
+- ✅ **Organizer Permissions**: You must be logged in as an event organizer with attendee management permissions
+- ✅ **Page Loading**: Always wait for the Meetup page to fully load before starting the extension
+- ✅ **Browser Support**: Works with all Chromium-based browsers (Chrome, Edge, Brave, Opera, etc.)
+
+### ⚡ Performance & Reliability
+- 🔄 **Built-in Delays**: The extension includes configurable delays to avoid overwhelming Meetup's servers
+- 📊 **Live Monitoring**: Progress is shown in real-time in the extension popup with detailed status updates
+- 🛡️ **Error Resilience**: If an error occurs with one attendee, the extension continues with the next one
+- 💾 **State Recovery**: The extension can resume processing after temporary interruptions or tab switches
+- 🎛️ **Customizable Timing**: Adjust delays based on your internet speed and Meetup's responsiveness
+
+### 🔍 Processing Logic
+- **Smart Detection**: Automatically identifies and processes attendees based on your selected source tab
+- **Exact Matching**: Uses precise button text matching to avoid accidental actions
+- **Duplicate Prevention**: Tracks processed attendees to prevent re-processing in subsequent runs
+- **Batch Optimization**: Processes visible attendees first, then loads more through intelligent scrolling
+
+### 📋 Data Handling
+- 🔒 **Local Only**: All processing happens entirely within your browser
+- 🚫 **No Data Collection**: The extension doesn't collect, store, or transmit any personal information
+- 💻 **Settings Storage**: Only your preference settings (delays, filters) are saved locally
+- 🔐 **Privacy First**: No tracking, analytics, or external data transmission of any kind
 
 ## 🔧 Troubleshooting
 
-### Common Issues
+### Common Issues & Solutions
 
-**Extension Won't Start**:
-- Ensure you're on a Meetup attendees page (URL contains `/attendees/`)
-- Verify you're logged in as an event organizer
-- Check that the Meetup page has fully loaded
+**❌ Extension Won't Start**:
+- ✅ Ensure you're on a Meetup attendees page (URL contains `/attendees/`)
+- ✅ Verify you're logged in as an event organizer with proper permissions
+- ✅ Check that the Meetup page has fully loaded before starting
+- ✅ Make sure you've selected the appropriate action type for your needs
+- ✅ Try refreshing the page and reopening the extension
 
-**Extension Gets Stuck**:
-- Click "Stop Process" and restart
-- Try increasing the delay settings
-- Refresh the Meetup page and try again
+**⏳ Extension Gets Stuck or Slow**:
+- ✅ Click "Stop Process" and restart with higher delay settings
+- ✅ Increase both action delay (try 3000ms) and scroll delay (try 4000ms)
+- ✅ Refresh the Meetup page and try again
+- ✅ Verify you have the correct action type selected for your intended operation
+- ✅ Check your internet connection stability
 
-**Some Attendees Skipped**:
-- Check name filter for typos (if using filtering)
-- Ensure all attendees have loaded by scrolling through the page
-- Run the extension again (it will skip already-processed attendees)
+**⚠️ Some Attendees Skipped**:
+- ✅ Check name filter for typos (if using name filtering)
+- ✅ Ensure all attendees have loaded by manually scrolling through the page first
+- ✅ Run the extension again (it will automatically skip already-processed attendees)
+- ✅ Verify the action type matches where the attendees currently are (e.g., use "Move to Waitlist" only when attendees are in Going status)
+- ✅ Check that attendee names in filter match exactly as shown on Meetup
 
-**Permission Errors**:
-- Verify you have organizer permissions for the event
-- Try refreshing your Meetup login
-- Check browser console (F12 → Console) for detailed errors
+**🔄 Wrong Tab or Navigation Errors**:
+- ✅ Extension automatically switches to correct tab based on your action type
+- ✅ If tab switching fails, manually navigate to the appropriate tab:
+  - For "Move to Went/Going": Start on the Waitlist tab
+  - For "Move to Waitlist": Start on the Going tab
+- ✅ Refresh the page if tab switching seems stuck
+- ✅ Clear browser cache and cookies for Meetup.com
+- ✅ Try using the extension in an incognito/private window
+
+**🔒 Permission or Access Errors**:
+- ✅ Verify you have organizer permissions for the specific event
+- ✅ Try logging out and back into Meetup.com
+- ✅ Check browser console (F12 → Console) for detailed error messages
+- ✅ Ensure the event hasn't been closed or cancelled
+- ✅ Verify your organizer role hasn't been revoked
+
+**🐛 Technical Issues**:
+- ✅ Update your browser to the latest version
+- ✅ Disable other extensions temporarily to check for conflicts
+- ✅ Try the extension in a different Chromium-based browser
+- ✅ Check browser console (F12 → Console) for JavaScript errors
+- ✅ Reload the extension from the extensions page
+
+### 📞 Getting Help
+
+If you continue experiencing issues:
+
+1. **Check the Browser Console**: Press F12 → Console tab for detailed error logs
+2. **Document the Issue**: Note which step fails and any error messages
+3. **Test Environment**: Try with different events, browsers, or networks
+4. **Report Issues**: Use the [GitHub Issues](../../issues) page with:
+   - Browser version and type
+   - Meetup event URL (remove sensitive info)
+   - Screenshot of error messages
+   - Steps to reproduce the problem
 
 ## 🔒 Privacy & Security
 
@@ -146,16 +283,62 @@ meetup-status-updater/
 ❌ **Store credentials** or login information  
 ❌ **Inject ads** or promotional content  
 
-## 🤝 Support
+## 🤝 Support & Contributing
 
-If you encounter issues, first check:
-- You're on the correct page type (Meetup attendees page)
-- You have organizer permissions for the event
-- The Meetup page has fully loaded before starting
-- Browser console for error messages (F12 → Console tab)
+### 🆘 Getting Help
 
-**Contributing**:
-- [Issue Tracker](../../issues) - Report bugs or request features
-- Fork the repository and submit pull requests for improvements
+Before reporting issues, please:
+- ✅ Review the troubleshooting section above
+- ✅ Check that you're using a supported browser and have organizer permissions
+- ✅ Verify you're on the correct Meetup attendees page
+- ✅ Look at browser console messages (F12 → Console) for detailed error information
 
-**Remember**: This extension automates the same manual process you would do - it just saves you time by clicking the buttons automatically!
+### 🐛 Reporting Issues
+
+When reporting bugs, please include:
+- **Browser version and type** (Chrome 118, Edge 119, etc.)
+- **Operating system** (Windows 11, macOS 14, etc.)
+- **Meetup event details** (number of attendees, event type - remove sensitive info)
+- **Screenshot of error messages** or unexpected behavior
+- **Steps to reproduce** the problem consistently
+- **Console error logs** (F12 → Console) if available
+
+### 💡 Feature Requests
+
+We welcome suggestions for new features! When requesting features:
+- Describe the use case and why it would be helpful
+- Provide mockups or detailed descriptions if possible
+- Consider how it would fit with existing functionality
+- Check existing issues to avoid duplicates
+
+### 🔧 Contributing Code
+
+Contributions are welcome! Here's how to get started:
+
+1. **Fork the repository** on GitHub
+2. **Clone your fork** locally
+3. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
+4. **Make your changes** with clear, commented code
+5. **Test thoroughly** with different scenarios
+6. **Commit your changes** (`git commit -m 'Add amazing feature'`)
+7. **Push to your branch** (`git push origin feature/amazing-feature`)
+8. **Open a Pull Request** with a clear description
+
+### 📝 Development Guidelines
+
+- Follow existing code style and conventions
+- Add comments for complex logic
+- Test with multiple browsers if possible
+- Ensure compatibility with Meetup's current page structure
+- Update documentation for new features
+
+### 🔗 Resources
+
+- **[Issue Tracker](../../issues)** - Report bugs or request features
+- **[Discussions](../../discussions)** - General questions and community support
+- **[Wiki](../../wiki)** - Additional documentation and guides
+- **[Releases](../../releases)** - Download stable versions and see changelog
+
+---
+
+**💝 Remember**: This extension automates the same manual process you would perform - it just saves you time by clicking the buttons automatically! It's designed to be a helpful tool for busy event organizers who want to focus on creating great experiences rather than managing administrative tasks.

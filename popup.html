@@ -108,7 +108,7 @@
     </div>
     
     <div id="status" class="status info">
-        Ready to update attendee status (past or future meetups)
+        Ready to move attendees from Waitlist tab to "Went"
     </div>
     
     <div class="progress" id="progressContainer" style="display: none;">
@@ -128,10 +128,11 @@
     
     <div class="settings">
         <div class="setting-item">
-            <label for="meetupType">Meetup Type:</label>
-            <select id="meetupType" class="setting-item input">
+            <label for="actionType">Action Type:</label>
+            <select id="actionType" class="setting-item input">
                 <option value="past">Past Meetup (Move to "Went")</option>
                 <option value="future">Future Meetup (Move to "Going")</option>
+                <option value="waitlist">Move to "Waitlist"</option>
             </select>
         </div>
         <div class="setting-item">

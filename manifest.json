@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Meetup Attendee Status Updater",
   "version": "1.0",
-  "description": "Automatically update Meetup event attendees status to 'Went' or 'Going' with name filtering",
+  "description": "Automatically update Meetup event attendees status between Waitlist, Going, and Went with name filtering support",
   "permissions": [
     "activeTab",
     "scripting",
